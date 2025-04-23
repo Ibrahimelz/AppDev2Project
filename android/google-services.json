@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "147369913623",
+    "project_id": "titanfitness-a55fd",
+    "storage_bucket": "titanfitness-a55fd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:147369913623:android:f165744aacebf688b6db52",
+        "android_client_info": {
+          "package_name": "com.example.appdev2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbyqHn4yXwCwUtayJdHuCRiM2SWiZ2Tyo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
