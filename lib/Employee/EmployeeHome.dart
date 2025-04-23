@@ -44,7 +44,7 @@ class _employeeHomeState extends State<employeeHome> {
                 children: [
                   CircleAvatar(
                     radius: 36,
-                    backgroundImage: AssetImage("assets/lebron.png"),
+                    backgroundImage: AssetImage("assets/images/lebron.png"),
                   ),
                   const SizedBox(width: 12),
                   Text(

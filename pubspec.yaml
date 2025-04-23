@@ -63,6 +63,8 @@ flutter:
   assets:
     - assets/lebron.png
     - assets/titanFitnessLogo.png
+    - assets/images/lebron.png
+    - assets/images/gym_background.jpg
   fonts:
     - family: MyFont
       fonts:
