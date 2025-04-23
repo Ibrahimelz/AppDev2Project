@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // Verify password
       if (userData['password'] != _passwordController.text) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Invalid password')),
+          SnackBar(content: Text('Enter a valid email and password')),
         );
         setState(() {
           _isLoading = false;
