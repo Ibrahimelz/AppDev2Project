@@ -32,7 +32,7 @@ class _employeeHomeState extends State<employeeHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Hello Lebron James")),
+      appBar: AppBar(title: Text("Hello Lebron James", style: TextStyle(fontFamily: 'MyFont'),)),
       endDrawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -86,12 +86,48 @@ class _employeeHomeState extends State<employeeHome> {
         ),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Padding(padding: EdgeInsets.symmetric(horizontal: 30), child: Column(
+          // mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(onPressed: (){}, child: Text("Tutorial"))
+            SizedBox(height: 20),
+            Text("Titan Fitness" , style: TextStyle(color: Colors.black, fontSize: 40, fontFamily: 'MyFont'),),
+            SizedBox(height: 50,),
+            Padding(padding: const EdgeInsets.symmetric(vertical: 20),
+              child: SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton(onPressed: (){}, style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)
+                    )
+                ), child: Text("Tutorial", style: TextStyle( color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500),)),
+              ),),
+            Padding(padding: const EdgeInsets.symmetric(vertical: 20),
+              child: SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton(onPressed: (){}, style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)
+                    )
+                ), child: Text("Manage Clients", style: TextStyle( color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500),)),
+              ),),
+            Padding(padding: const EdgeInsets.symmetric(vertical: 20),
+              child: SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton(onPressed: (){}, style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)
+                    )
+                ), child: Text("Register Clients", style: TextStyle( color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500),)),
+              ),)
           ],
         ),
+        )
       ),
     );
   }
