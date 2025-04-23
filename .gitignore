@@ -47,3 +47,12 @@ app.*.map.json
 # Ignore iOS and macOS Podfiles
 ios/Podfile
 macos/Podfile
+
+# Ignore iOS and macOS Flutter configuration files
+ios/Flutter/Debug.xcconfig
+ios/Flutter/Release.xcconfig
+macos/Flutter/Flutter-Debug.xcconfig
+macos/Flutter/Flutter-Release.xcconfig
+
+# Ignore pubspec.lock (if you want to ignore it, though usually it's tracked)
+pubspec.lock
