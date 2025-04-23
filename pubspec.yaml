@@ -40,6 +40,7 @@ dev_dependencies:
     sdk: flutter
   cloud_firestore: any
   firebase_core_platform_interface: any
+  youtube_player_flutter: any
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

@@ -1,3 +1,4 @@
+import 'package:appdev2/EmployeeTutorial.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -32,7 +33,7 @@ class _employeeHomeState extends State<employeeHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Hello Lebron James", style: TextStyle(fontFamily: 'MyFont'),)),
+      appBar: AppBar(title: Text("Titan Fitness", style: TextStyle(fontFamily: 'MyFont'),)),
       endDrawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -90,13 +91,17 @@ class _employeeHomeState extends State<employeeHome> {
           // mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(height: 20),
-            Text("Titan Fitness" , style: TextStyle(color: Colors.black, fontSize: 40, fontFamily: 'MyFont'),),
+            Text("Hello,\n Lebron James" , style: TextStyle(color: Colors.black, fontSize: 40, fontFamily: 'MyFont'),),
             SizedBox(height: 50,),
             Padding(padding: const EdgeInsets.symmetric(vertical: 20),
               child: SizedBox(
                 width: double.infinity,
                 height: 60,
-                child: ElevatedButton(onPressed: (){}, style: ElevatedButton.styleFrom(
+                child: ElevatedButton(onPressed: (){
+
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => Employeetutorial()));
+
+                }, style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)
