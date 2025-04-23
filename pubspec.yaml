@@ -61,8 +61,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/lebron.png
-    - assets/titanFitnessLogo.png
+    - assets/images/titanFitnessLogo.png
     - assets/images/lebron.png
     - assets/images/gym_background.jpg
   fonts:

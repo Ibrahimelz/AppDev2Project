@@ -42,7 +42,7 @@ class _splashScreenState extends State<splashScreen>  with SingleTickerProviderS
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset("assets/titanFitnessLogo.png"),
+            Image.asset("assets/images/titanFitnessLogo.png"),
             SizedBox(height: 20),
             Text("Titan Fitness" , style: TextStyle(fontFamily: 'MyFont', color: Colors.black, fontSize: 32))
           ],
