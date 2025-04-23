@@ -62,6 +62,7 @@ flutter:
 
   assets:
     - assets/lebron.png
+    - assets/images/gym_background.jpg
   fonts:
     - family: MyFont
       fonts:
