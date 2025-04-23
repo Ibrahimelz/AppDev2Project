@@ -1,4 +1,4 @@
-import 'package:appdev2/EmployeeHome.dart';
+import 'package:appdev2/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -18,7 +18,7 @@ class _splashScreenState extends State<splashScreen>  with SingleTickerProviderS
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
     
     Future.delayed(Duration( seconds: 5), () {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => employeeHome(employeeID: 2)));
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen()));
     });
   }
   
