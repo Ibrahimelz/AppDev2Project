@@ -1,4 +1,4 @@
-import 'package:appdev2/EmployeeHome.dart';
+import 'package:appdev2/Employee/EmployeeHome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -41,7 +41,7 @@ class _splashScreenState extends State<splashScreen>  with SingleTickerProviderS
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image(image: NetworkImage("https://github.com/user-attachments/assets/651528f6-3b78-41fb-8046-1b6242d7f3ea")),
+            Image.asset("assets/titanFitnessLogo.png"),
             SizedBox(height: 20),
             Text("Titan Fitness" , style: TextStyle(fontFamily: 'MyFont', color: Colors.black, fontSize: 32))
           ],

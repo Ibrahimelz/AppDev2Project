@@ -34,7 +34,7 @@ class _EmployeetutorialState extends State<Employeetutorial> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
           "Titan Fitness",
@@ -48,7 +48,7 @@ class _EmployeetutorialState extends State<Employeetutorial> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                "Please watch this video to familiarize yourself with BeastFit",
+                "Please watch this video to familiarize yourself with Titan Fitness",
                 style: TextStyle(fontFamily: 'MyFont', fontSize: 24),
                 textAlign: TextAlign.center,
               ),
