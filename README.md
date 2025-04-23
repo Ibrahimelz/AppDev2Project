@@ -1,16 +1,2 @@
-# appdev2
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![A giant lifting a rock, suitable for a fitness app logo](https://github.com/user-attachments/assets/651528f6-3b78-41fb-8046-1b6242d7f3ea)
+# Titan Fitness
