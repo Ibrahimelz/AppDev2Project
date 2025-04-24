@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:appdev2/Employee/EmployeeHome.dart';
+import 'package:appdev2/Admin/AdminHome.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -69,15 +70,14 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       } else {
         // Navigate to Admin Home
-        // TODO: Implement AdminHome navigation
-        // Navigator.pushReplacement(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => AdminHome(
-        //       adminID: userData['adminID'],
-        //     ),
-        //   ),
-        // );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AdminHome(
+              adminID: userData['adminID'],
+            ),
+          ),
+        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
