@@ -94,7 +94,7 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
         'lname': _lnameController.text,
         'email': _emailController.text,
         'address': _addressController.text,
-        'phone': _phoneController.text,
+        'phoneNumber': _phoneController.text,
         'password': _passwordController.text,
       };
 
