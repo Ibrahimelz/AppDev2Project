@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:appdev2/Admin/registerEmployee.dart';
 
 class AdminHome extends StatefulWidget {
   const AdminHome({ required this.adminID ,super.key});
@@ -152,7 +153,12 @@ class _AdminHomeState extends State<AdminHome> {
                   width: double.infinity,
                   height: 60,
                   child: ElevatedButton(
-                    onPressed: (){}, 
+                    onPressed: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => RegisterEmployee()),
+                      );
+                    }, 
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       shape: RoundedRectangleBorder(
