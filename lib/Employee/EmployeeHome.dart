@@ -1,4 +1,5 @@
 import 'package:appdev2/Employee/EmployeeTutorial.dart';
+import 'package:appdev2/Employee/editEmployeeProfile.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -65,14 +66,14 @@ class _employeeHomeState extends State<employeeHome> {
               leading: Icon(Icons.notifications),
               title: Text('Notifications'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => editEmployeeProfile(employeeID: widget.employeeID)));
               },
             ),
             ListTile(
               leading: Icon(Icons.person_2_outlined),
               title: Text('Edit Profile'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => editEmployeeProfile(employeeID: widget.employeeID)));
               },
             ),
             SizedBox(height: 50,),
