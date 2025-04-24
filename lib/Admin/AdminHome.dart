@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AdminHome extends StatefulWidget {
   const AdminHome({ required this.adminID ,super.key});
@@ -10,6 +11,36 @@ class AdminHome extends StatefulWidget {
 }
 
 class _AdminHomeState extends State<AdminHome> {
+  String fname = '';
+  String lname = '';
+  String profilePicture = 'lebron.png';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAdminData();
+  }
+
+  Future<void> _loadAdminData() async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('Admins')
+          .where('adminID', isEqualTo: widget.adminID)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final adminData = querySnapshot.docs.first.data();
+        setState(() {
+          fname = adminData['fname'] ?? '';
+          lname = adminData['lname'] ?? '';
+          profilePicture = adminData['profilePicture'] ?? 'lebron.png';
+        });
+      }
+    } catch (e) {
+      print('Error loading admin data: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,12 +55,15 @@ class _AdminHomeState extends State<AdminHome> {
                 children: [
                   CircleAvatar(
                     radius: 36,
-                    backgroundImage: AssetImage("assets/images/lebron.png"),
+                    backgroundImage: AssetImage("assets/images/$profilePicture"),
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    'Lebron James',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  Expanded(
+                    child: Text(
+                      '$fname $lname',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               )
@@ -80,7 +114,7 @@ class _AdminHomeState extends State<AdminHome> {
             children: [
               SizedBox(height: 20),
               Text(
-                "Hello,\n Lebron James", 
+                "Hello,\n$fname $lname", 
                 style: TextStyle(
                   color: Colors.black, 
                   fontSize: 40, 
