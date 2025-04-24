@@ -1,6 +1,9 @@
+import 'package:appdev2/Admin/manageEmployees.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:appdev2/Admin/registerEmployee.dart';
+
+import '../login.dart';
 
 class AdminHome extends StatefulWidget {
   const AdminHome({ required this.adminID ,super.key});
@@ -102,7 +105,7 @@ class _AdminHomeState extends State<AdminHome> {
               leading: Icon(Icons.logout),
               title: Text('Log out'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
               },
             )
           ],
@@ -129,7 +132,9 @@ class _AdminHomeState extends State<AdminHome> {
                   width: double.infinity,
                   height: 60,
                   child: ElevatedButton(
-                    onPressed: (){}, 
+                    onPressed: (){
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => manageEmployees()));
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       shape: RoundedRectangleBorder(

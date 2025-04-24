@@ -1,5 +1,6 @@
 import 'package:appdev2/Employee/EmployeeTutorial.dart';
 import 'package:appdev2/Employee/editEmployeeProfile.dart';
+import 'package:appdev2/login.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -115,7 +116,7 @@ class _employeeHomeState extends State<employeeHome> {
               leading: Icon(Icons.logout),
               title: Text('Log out'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
               },
             )
           ],
