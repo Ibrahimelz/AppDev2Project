@@ -3,6 +3,7 @@ import 'package:appdev2/Employee/editEmployeeProfile.dart';
 import 'package:appdev2/login.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:appdev2/Employee/EmployeeNotifications.dart';
 
 void main() {
 
@@ -36,6 +37,7 @@ class _employeeHomeState extends State<employeeHome> {
   String fname = '';
   String lname = '';
   String profilePicture = 'lebron.png';
+  String email = '';
 
   @override
   void initState() {
@@ -56,6 +58,7 @@ class _employeeHomeState extends State<employeeHome> {
           fname = employeeData['fname'] ?? '';
           lname = employeeData['lname'] ?? '';
           profilePicture = employeeData['profilePicture'] ?? 'lebron.png';
+          email = employeeData['email'] ?? '';
         });
       }
     } catch (e) {
@@ -101,7 +104,11 @@ class _employeeHomeState extends State<employeeHome> {
               leading: Icon(Icons.notifications),
               title: Text('Notifications'),
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => editEmployeeProfile(employeeID: widget.employeeID)));
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => EmployeeNotifications(userEmail: email)),
+                );
               },
             ),
             ListTile(
