@@ -37,6 +37,7 @@ class _employeeHomeState extends State<employeeHome> {
   String fname = '';
   String lname = '';
   String profilePicture = 'lebron.png';
+  String email = '';
 
   @override
   void initState() {
@@ -57,6 +58,7 @@ class _employeeHomeState extends State<employeeHome> {
           fname = employeeData['fname'] ?? '';
           lname = employeeData['lname'] ?? '';
           profilePicture = employeeData['profilePicture'] ?? 'lebron.png';
+          email = employeeData['email'] ?? '';
         });
       }
     } catch (e) {
@@ -105,7 +107,7 @@ class _employeeHomeState extends State<employeeHome> {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => EmployeeNotifications()),
+                  MaterialPageRoute(builder: (context) => EmployeeNotifications(userEmail: email)),
                 );
               },
             ),
