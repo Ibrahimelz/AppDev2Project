@@ -3,6 +3,7 @@ import 'package:appdev2/Employee/editEmployeeProfile.dart';
 import 'package:appdev2/login.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:appdev2/Employee/EmployeeNotifications.dart';
 
 void main() {
 
@@ -101,7 +102,11 @@ class _employeeHomeState extends State<employeeHome> {
               leading: Icon(Icons.notifications),
               title: Text('Notifications'),
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => editEmployeeProfile(employeeID: widget.employeeID)));
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => EmployeeNotifications()),
+                );
               },
             ),
             ListTile(
