@@ -25,7 +25,6 @@ class _AdminNotificationsState extends State<AdminNotifications> {
       'message': _messageController.text,
       'date': Timestamp.now(),
       'priority': _priority,
-      'role': 'admin',
     });
     _titleController.clear();
     _messageController.clear();
