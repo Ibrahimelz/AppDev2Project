@@ -2,6 +2,7 @@ import 'package:appdev2/Admin/manageEmployees.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:appdev2/Admin/registerEmployee.dart';
+import 'package:appdev2/Admin/AdminNotifications.dart';
 
 import '../login.dart';
 
@@ -98,6 +99,10 @@ class _AdminHomeState extends State<AdminHome> {
               title: Text('Notifications'),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AdminNotifications()),
+                );
               },
             ),
             SizedBox(height: 50,),
