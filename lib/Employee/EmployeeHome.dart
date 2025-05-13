@@ -1,5 +1,7 @@
 import 'package:appdev2/Employee/EmployeeTutorial.dart';
 import 'package:appdev2/Employee/editEmployeeProfile.dart';
+import 'package:appdev2/Employee/manageClients.dart';
+import 'package:appdev2/Employee/registerClient.dart';
 import 'package:appdev2/login.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -169,7 +171,9 @@ class _employeeHomeState extends State<employeeHome> {
                   width: double.infinity,
                   height: 60,
                   child: ElevatedButton(
-                    onPressed: (){}, 
+                    onPressed: (){
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => ManageClients()));
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       shape: RoundedRectangleBorder(
@@ -193,7 +197,10 @@ class _employeeHomeState extends State<employeeHome> {
                   width: double.infinity,
                   height: 60,
                   child: ElevatedButton(
-                    onPressed: (){}, 
+                    onPressed: (){
+
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => RegisterClientPage()));
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       shape: RoundedRectangleBorder(
