@@ -6,11 +6,13 @@ import 'package:appdev2/login.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:appdev2/Employee/EmployeeNotifications.dart';
+import 'package:appdev2/Employee/branch.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 void main() {
-
   runApp(myApp());
-
 }
 
 class myApp extends StatelessWidget {
@@ -25,9 +27,8 @@ class myApp extends StatelessWidget {
   }
 }
 
-
 class employeeHome extends StatefulWidget {
-  const employeeHome({ required this.employeeID ,super.key});
+  const employeeHome({required this.employeeID, super.key});
 
   final int employeeID;
 
@@ -40,11 +41,13 @@ class _employeeHomeState extends State<employeeHome> {
   String lname = '';
   String profilePicture = 'lebron.png';
   String email = '';
+  String quote = "Loading inspirational quote...";
 
   @override
   void initState() {
     super.initState();
     _loadEmployeeData();
+    fetchQuote();
   }
 
   Future<void> _loadEmployeeData() async {
@@ -68,10 +71,32 @@ class _employeeHomeState extends State<employeeHome> {
     }
   }
 
+  Future<void> fetchQuote() async {
+    try {
+      final response = await http.get(Uri.parse('https://zenquotes.io/api/random'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          quote = '${data[0]['q']} - ${data[0]['a']}';
+        });
+      } else {
+        setState(() {
+          quote = 'Failed to load quote.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        quote = 'Error fetching quote.';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Titan Fitness", style: TextStyle(fontFamily: 'MyFont'),)),
+      appBar: AppBar(
+        title: Text("Titan Fitness", style: TextStyle(fontFamily: 'MyFont')),
+      ),
       endDrawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -93,7 +118,7 @@ class _employeeHomeState extends State<employeeHome> {
                     ),
                   ),
                 ],
-              )
+              ),
             ),
             ListTile(
               leading: Icon(Icons.home),
@@ -117,58 +142,66 @@ class _employeeHomeState extends State<employeeHome> {
               leading: Icon(Icons.person_2_outlined),
               title: Text('Edit Profile'),
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => editEmployeeProfile(employeeID: widget.employeeID)));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => editEmployeeProfile(employeeID: widget.employeeID)));
               },
             ),
-            SizedBox(height: 50,),
+            ListTile(
+              leading: Icon(Icons.my_location),
+              title: Text('Branch'),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const MapScreen(locationTitle: 'TitanFitness branch location'),
+                ));
+              },
+            ),
+            SizedBox(height: 50),
             ListTile(
               leading: Icon(Icons.logout),
               title: Text('Log out'),
               onTap: () {
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
               },
-            )
+            ),
           ],
         ),
       ),
       body: Center(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 30), 
+          padding: EdgeInsets.symmetric(horizontal: 30),
           child: Column(
             children: [
               SizedBox(height: 20),
               Text(
-                "Hello,\n$fname $lname", 
+                "Hello,\n$fname $lname",
                 style: TextStyle(
-                  color: Colors.black, 
-                  fontSize: 40, 
-                  fontFamily: 'MyFont'
+                  color: Colors.black,
+                  fontSize: 40,
+                  fontFamily: 'MyFont',
                 ),
               ),
-              SizedBox(height: 50,),
+              SizedBox(height: 50),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 child: SizedBox(
                   width: double.infinity,
                   height: 60,
                   child: ElevatedButton(
-                    onPressed: (){
+                    onPressed: () {
                       Navigator.of(context).push(MaterialPageRoute(builder: (context) => Employeetutorial()));
-                    }, 
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)
-                      )
-                    ), 
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                     child: Text(
-                      "Tutorial", 
+                      "Tutorial",
                       style: TextStyle(
-                        color: Colors.white, 
-                        fontSize: 20, 
-                        fontWeight: FontWeight.w500
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
                       ),
-                    )
+                    ),
                   ),
                 ),
               ),
@@ -178,23 +211,21 @@ class _employeeHomeState extends State<employeeHome> {
                   width: double.infinity,
                   height: 60,
                   child: ElevatedButton(
-                    onPressed: (){
+                    onPressed: () {
                       Navigator.of(context).push(MaterialPageRoute(builder: (context) => ManageClients()));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)
-                      )
-                    ), 
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                     child: Text(
-                      "Manage Clients", 
+                      "Manage Clients",
                       style: TextStyle(
-                        color: Colors.white, 
-                        fontSize: 20, 
-                        fontWeight: FontWeight.w500
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
                       ),
-                    )
+                    ),
                   ),
                 ),
               ),
@@ -204,30 +235,41 @@ class _employeeHomeState extends State<employeeHome> {
                   width: double.infinity,
                   height: 60,
                   child: ElevatedButton(
-                    onPressed: (){
-
+                    onPressed: () {
                       Navigator.of(context).push(MaterialPageRoute(builder: (context) => RegisterClientPage()));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)
-                      )
-                    ), 
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                     child: Text(
-                      "Register Clients", 
+                      "Register Clients",
                       style: TextStyle(
-                        color: Colors.white, 
-                        fontSize: 20, 
-                        fontWeight: FontWeight.w500
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
                       ),
-                    )
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Text(
+                  quote,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFFFA25B), // soft orange, similar to the image
+                    fontFamily: 'MyFont',   // optional: can customize with a better matching font
                   ),
                 ),
               ),
             ],
           ),
-        )
+        ),
       ),
     );
   }
