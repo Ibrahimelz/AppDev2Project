@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:image_picker/image_picker.dart';
@@ -75,19 +76,25 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
     });
 
     try {
-      // Get the next available employeeID
+      // ✅ Register employee in Firebase Auth
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      // 🔢 Get next employeeID
       final employeesRef = FirebaseFirestore.instance.collection('Employees');
       final querySnapshot = await employeesRef
           .orderBy('employeeID', descending: true)
           .limit(1)
           .get();
-      
+
       int nextEmployeeID = 1;
       if (querySnapshot.docs.isNotEmpty) {
         nextEmployeeID = (querySnapshot.docs.first.data()['employeeID'] as int) + 1;
       }
 
-      // Create new employee document
+      // 📝 Create Firestore employee profile
       Map<String, dynamic> employeeData = {
         'employeeID': nextEmployeeID,
         'fname': _fnameController.text,
@@ -98,7 +105,6 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
         'password': _passwordController.text,
       };
 
-      // Add profile picture only if one was selected
       if (_imageFile != null) {
         employeeData['profilePicture'] = _imageFile!.name;
       }
@@ -119,6 +125,7 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
       });
     }
   }
+
 
   @override
   void dispose() {

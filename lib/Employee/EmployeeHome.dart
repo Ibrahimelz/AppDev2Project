@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:appdev2/Employee/EmployeeNotifications.dart';
 import 'package:appdev2/Employee/branch.dart';
+import 'package:appdev2/Employee/groupChat.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -152,6 +153,18 @@ class _employeeHomeState extends State<employeeHome> {
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => const MapScreen(locationTitle: 'TitanFitness branch location'),
+                ));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.message),
+              title: Text('Group chat'),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => GroupChat(
+                    employeeID: widget.employeeID.toString(),
+                    name: '$fname $lname',
+                  ),
                 ));
               },
             ),

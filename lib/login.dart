@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:appdev2/Employee/EmployeeHome.dart';
@@ -23,43 +24,31 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      // Get the collection reference based on user type
-      final collectionRef = _isEmployee 
+      final result = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      print('Firebase user signed in: ${result.user?.uid}');
+
+      final collectionRef = _isEmployee
           ? FirebaseFirestore.instance.collection('Employees')
           : FirebaseFirestore.instance.collection('Admins');
 
-      // Query the collection for the user
       final querySnapshot = await collectionRef
           .where('email', isEqualTo: _emailController.text.trim())
           .get();
 
       if (querySnapshot.docs.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Enter a valid email and password')),
+          SnackBar(content: Text('Profile not found.')),
         );
-        setState(() {
-          _isLoading = false;
-        });
         return;
       }
 
       final userDoc = querySnapshot.docs.first;
       final userData = userDoc.data();
 
-      // Verify password
-      if (userData['password'] != _passwordController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Enter a valid email and password')),
-        );
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
-
-      // Login successful
       if (_isEmployee) {
-        // Navigate to Employee Home
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -69,7 +58,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       } else {
-        // Navigate to Admin Home
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -80,8 +68,9 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
+      print('Login error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
+        SnackBar(content: Text('Login failed: $e')),
       );
     } finally {
       setState(() {
@@ -89,6 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     }
   }
+
 
   @override
   void dispose() {
