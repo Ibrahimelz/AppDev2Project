@@ -213,7 +213,49 @@ class _LoginScreenState extends State<LoginScreen> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // TODO: Implement forgot password
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          final TextEditingController _resetEmailController = TextEditingController();
+
+                          return AlertDialog(
+                            title: Text("Reset Password"),
+                            content: TextField(
+                              controller: _resetEmailController,
+                              keyboardType: TextInputType.emailAddress,
+                              decoration: InputDecoration(
+                                labelText: "Enter your email",
+                                hintText: "example@gmail.com",
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                child: Text("Cancel"),
+                                onPressed: () => Navigator.of(context).pop(),
+                              ),
+                              ElevatedButton(
+                                child: Text("Send Reset Link"),
+                                onPressed: () async {
+                                  try {
+                                    await FirebaseAuth.instance.sendPasswordResetEmail(
+                                      email: _resetEmailController.text.trim(),
+                                    );
+                                    Navigator.of(context).pop();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text("Reset link sent to your email.")),
+                                    );
+                                  } catch (e) {
+                                    Navigator.of(context).pop();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text("Error: ${e.toString()}")),
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
                     },
                     child: Text(
                       'Forgot password?',
