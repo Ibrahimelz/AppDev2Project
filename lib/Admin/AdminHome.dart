@@ -81,20 +81,6 @@ class _AdminHomeState extends State<AdminHome> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.attach_money),
-              title: Text('Revenue'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.cancel_outlined),
-              title: Text('Cancelled Memberships'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
               leading: Icon(Icons.notifications),
               title: Text('Notifications'),
               onTap: () {
