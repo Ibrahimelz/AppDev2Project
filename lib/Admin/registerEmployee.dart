@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class RegisterEmployee extends StatefulWidget {
   const RegisterEmployee({Key? key}) : super(key: key);
@@ -16,7 +17,7 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
   XFile? _imageFile;
-  
+
   final _fnameController = TextEditingController();
   final _lnameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -24,48 +25,25 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
-  bool _obscurePassword = true;  // For password visibility toggle
+  bool _obscurePassword = true;
 
   Future<void> _pickImage() async {
     try {
-      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
       if (pickedFile != null) {
         setState(() {
           _imageFile = pickedFile;
         });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No image captured')),
+        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking image: $e')),
+        SnackBar(content: Text('Error capturing image: $e')),
       );
     }
-  }
-
-  Widget _buildImageWidget() {
-    if (_imageFile != null) {
-      if (kIsWeb) {
-        // For web, use Image.network with the object URL
-        return ClipOval(
-          child: Image.network(
-            _imageFile!.path,
-            width: 120,
-            height: 120,
-            fit: BoxFit.cover,
-          ),
-        );
-      } else {
-        // For mobile, use Image.file
-        return ClipOval(
-          child: Image.file(
-            File(_imageFile!.path),
-            width: 120,
-            height: 120,
-            fit: BoxFit.cover,
-          ),
-        );
-      }
-    }
-    return Icon(Icons.add_a_photo, size: 40, color: Colors.grey[400]);
   }
 
   Future<void> _registerEmployee() async {
@@ -76,13 +54,12 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
     });
 
     try {
-      // ✅ Register employee in Firebase Auth
+      // Create user in Firebase Auth
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      // 🔢 Get next employeeID
       final employeesRef = FirebaseFirestore.instance.collection('Employees');
       final querySnapshot = await employeesRef
           .orderBy('employeeID', descending: true)
@@ -94,25 +71,41 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
         nextEmployeeID = (querySnapshot.docs.first.data()['employeeID'] as int) + 1;
       }
 
-      // 📝 Create Firestore employee profile
       Map<String, dynamic> employeeData = {
         'employeeID': nextEmployeeID,
-        'fname': _fnameController.text,
-        'lname': _lnameController.text,
-        'email': _emailController.text,
-        'address': _addressController.text,
-        'phoneNumber': _phoneController.text,
-        'password': _passwordController.text,
+        'fname': _fnameController.text.trim(),
+        'lname': _lnameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'address': _addressController.text.trim(),
+        'phoneNumber': _phoneController.text.trim(),
+        'password': _passwordController.text.trim(),
+        'createdAt': FieldValue.serverTimestamp(),
       };
 
-      if (_imageFile != null) {
-        employeeData['profilePicture'] = _imageFile!.name;
+      // Upload profile picture if present (not for web)
+      if (_imageFile != null && !kIsWeb) {
+        try {
+          final storageRef = FirebaseStorage.instance
+              .ref()
+              .child('employee_images/$nextEmployeeID.jpg');
+
+          final uploadTask = await storageRef.putFile(File(_imageFile!.path));
+          final downloadUrl = await uploadTask.ref.getDownloadURL();
+
+          employeeData['profilePicture'] = downloadUrl;
+        } catch (e) {
+          print('Image upload failed: $e');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Profile picture upload failed')),
+          );
+        }
       }
 
+      // Save employee data to Firestore
       await employeesRef.add(employeeData);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Employee registered successfully')),
+        const SnackBar(content: Text('Employee registered successfully')),
       );
       Navigator.pop(context);
     } catch (e) {
@@ -126,6 +119,30 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
     }
   }
 
+  Widget _buildImageWidget() {
+    if (_imageFile != null) {
+      if (kIsWeb) {
+        return ClipOval(
+          child: Image.network(
+            _imageFile!.path,
+            width: 120,
+            height: 120,
+            fit: BoxFit.cover,
+          ),
+        );
+      } else {
+        return ClipOval(
+          child: Image.file(
+            File(_imageFile!.path),
+            width: 120,
+            height: 120,
+            fit: BoxFit.cover,
+          ),
+        );
+      }
+    }
+    return Icon(Icons.add_a_photo, size: 40, color: Colors.grey[400]);
+  }
 
   @override
   void dispose() {
@@ -164,14 +181,15 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
                     child: _buildImageWidget(),
                   ),
                 ),
+                const SizedBox(height: 8),
                 Text(
-                  '(Optional) Tap to add profile picture',
+                  '(Optional) Tap to take profile picture',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 12,
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 TextFormField(
                   controller: _fnameController,
                   decoration: InputDecoration(
@@ -187,7 +205,7 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
                     return null;
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: _lnameController,
                   decoration: InputDecoration(
@@ -203,7 +221,7 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
                     return null;
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: _emailController,
                   decoration: InputDecoration(
@@ -222,7 +240,7 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
                     return null;
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: _addressController,
                   decoration: InputDecoration(
@@ -238,7 +256,7 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
                     return null;
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: _phoneController,
                   decoration: InputDecoration(
@@ -255,7 +273,7 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
                     return null;
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -286,7 +304,7 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
                     return null;
                   },
                 ),
-                SizedBox(height: 32),
+                const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -299,22 +317,22 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
                       ),
                     ),
                     child: _isLoading
-                        ? SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : Text(
-                            'Create',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                        ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        strokeWidth: 2,
+                      ),
+                    )
+                        : const Text(
+                      'Create',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ],
