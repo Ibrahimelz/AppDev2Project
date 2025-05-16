@@ -11,6 +11,48 @@ class ManageClients extends StatefulWidget {
 class _ManageClientsState extends State<ManageClients> {
   final CollectionReference clients = FirebaseFirestore.instance.collection('Clients');
   Set<String> expandedDocs = {};
+  TextEditingController _searchController = TextEditingController();
+  List<QueryDocumentSnapshot> _allClients = [];
+  List<QueryDocumentSnapshot> _filteredClients = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchClients();
+    _searchController.addListener(_filterClients);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _fetchClients() async {
+    final snapshot = await clients.orderBy('createdAt', descending: true).get();
+    setState(() {
+      _allClients = snapshot.docs;
+      _filteredClients = _allClients;
+    });
+  }
+
+  void _filterClients() {
+    final query = _searchController.text.toLowerCase();
+    if (query.isEmpty) {
+      setState(() {
+        _filteredClients = _allClients;
+      });
+    } else {
+      setState(() {
+        _filteredClients = _allClients.where((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          final fname = data['fname'].toString().toLowerCase();
+          final lname = data['lname'].toString().toLowerCase();
+          return fname.contains(query) || lname.contains(query);
+        }).toList();
+      });
+    }
+  }
 
   void toggleCard(String docId) {
     setState(() {
@@ -29,13 +71,10 @@ class _ManageClientsState extends State<ManageClients> {
         title: const Text('Warning', style: TextStyle(fontFamily: 'MyFont')),
         content: Text('Are you sure you want to delete $fullName?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
           ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () => Navigator.of(context).pop(true),
             child: const Text('Delete'),
           ),
         ],
@@ -44,10 +83,8 @@ class _ManageClientsState extends State<ManageClients> {
 
     if (shouldDelete == true) {
       await clients.doc(docId).delete();
-      setState(() {});
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Client deleted')),
-      );
+      _fetchClients();
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Client deleted')));
     }
   }
 
@@ -140,10 +177,7 @@ class _ManageClientsState extends State<ManageClients> {
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
             ElevatedButton(
               onPressed: () async {
                 await clients.doc(docId).update({
@@ -154,8 +188,7 @@ class _ManageClientsState extends State<ManageClients> {
                   'gender': gender,
                   'isMember': isMember,
                 });
-
-                setState(() {});
+                _fetchClients();
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Client updated')),
@@ -177,102 +210,102 @@ class _ManageClientsState extends State<ManageClients> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
       ),
-      body: FutureBuilder<QuerySnapshot>(
-        future: clients.orderBy('createdAt', descending: true).get(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search clients by name...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+          Expanded(
+            child: _filteredClients.isEmpty
+                ? const Center(child: Text('No clients found.'))
+                : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: _filteredClients.length,
+              itemBuilder: (context, index) {
+                final doc = _filteredClients[index];
+                final data = doc.data() as Map<String, dynamic>;
+                final docId = doc.id;
+                final isExpanded = expandedDocs.contains(docId);
 
-          if (snapshot.hasError) {
-            return const Center(child: Text('Error fetching clients'));
-          }
-
-          final clientDocs = snapshot.data!.docs;
-
-          if (clientDocs.isEmpty) {
-            return const Center(child: Text('No clients found.'));
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: clientDocs.length,
-            itemBuilder: (context, index) {
-              final doc = clientDocs[index];
-              final data = doc.data() as Map<String, dynamic>;
-              final docId = doc.id;
-              final isExpanded = expandedDocs.contains(docId);
-
-              return Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                child: InkWell(
-                  onTap: () => toggleCard(docId),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '${data['fname']} ${data['lname']}',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            Text('Age: ${data['age']}'),
-                          ],
-                        ),
-                        if (isExpanded) const SizedBox(height: 12),
-                        if (isExpanded)
+                return Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  child: InkWell(
+                    onTap: () => toggleCard(docId),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              CircleAvatar(
-                                radius: 30,
-                                backgroundImage: data['profileImage'] != null
-                                    ? NetworkImage(data['profileImage']) as ImageProvider
-                                    : null,
-                                child: data['profileImage'] == null
-                                    ? const Icon(Icons.person)
-                                    : null,
+                              Text(
+                                '${data['fname']} ${data['lname']}',
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                               ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Email: ${data['email']}'),
-                                    Text('Gender: ${data['gender']}'),
-                                    Text('Member: ${data['isMember'] ? 'Yes' : 'No'}'),
-                                    if (data['description'] != null && data['description'].toString().isNotEmpty)
-                                      Text('Notes: ${data['description']}'),
-                                  ],
-                                ),
-                              ),
-                              Column(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.edit, color: Colors.blue),
-                                    onPressed: () => showEditClientDialog(docId, data),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete, color: Colors.red),
-                                    onPressed: () => deleteClient(docId, '${data['fname']} ${data['lname']}'),
-                                  ),
-                                ],
-                              ),
+                              Text('Age: ${data['age']}'),
                             ],
                           ),
-                      ],
+                          if (isExpanded) const SizedBox(height: 12),
+                          if (isExpanded)
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CircleAvatar(
+                                  radius: 30,
+                                  backgroundImage: data['profileImage'] != null
+                                      ? NetworkImage(data['profileImage']) as ImageProvider
+                                      : null,
+                                  child: data['profileImage'] == null ? const Icon(Icons.person) : null,
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Email: ${data['email']}'),
+                                      Text('Gender: ${data['gender']}'),
+                                      Text('Member: ${data['isMember'] ? 'Yes' : 'No'}'),
+                                      if (data['description'] != null &&
+                                          data['description'].toString().isNotEmpty)
+                                        Text('Notes: ${data['description']}'),
+                                    ],
+                                  ),
+                                ),
+                                Column(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.edit, color: Colors.blue),
+                                      onPressed: () => showEditClientDialog(docId, data),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete, color: Colors.red),
+                                      onPressed: () =>
+                                          deleteClient(docId, '${data['fname']} ${data['lname']}'),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
-          );
-        },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
