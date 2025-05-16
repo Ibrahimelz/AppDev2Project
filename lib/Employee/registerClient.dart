@@ -184,13 +184,29 @@ class _RegisterClientPageState extends State<RegisterClientPage> {
               TextFormField(
                 controller: _firstNameController,
                 decoration: _inputDecoration('First Name'),
-                validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Required';
+                  }
+                  if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                    return 'First name must contain only letters';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _lastNameController,
                 decoration: _inputDecoration('Last Name'),
-                validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Required';
+                  }
+                  if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                    return 'Last name must contain only letters';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 12),
               TextFormField(
