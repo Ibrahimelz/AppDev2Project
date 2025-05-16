@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:appdev2/services/notification_service.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,20 +18,28 @@ Future<void> main() async{
   
   // Initialize notification service
   await NotificationService().initialize();
-  
+
+  // Check for initial notification action
+  final initialAction = await AwesomeNotifications().getInitialNotificationAction();
+  final openNotificationsPage = initialAction != null;
+
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(const MyApp());
+  runApp(MyApp(openNotificationsPage: openNotificationsPage));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, this.openNotificationsPage = false});
+
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  final bool openNotificationsPage;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
      debugShowCheckedModeBanner: false,
-     home: splashScreen(),
+     navigatorKey: navigatorKey,
+     home: splashScreen(openNotificationsPage: openNotificationsPage),
     );
   }
 }

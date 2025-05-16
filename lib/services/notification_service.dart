@@ -2,6 +2,12 @@ import 'dart:ui';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
+import 'package:appdev2/main.dart';
+import 'package:appdev2/Admin/AdminNotifications.dart';
+import 'package:appdev2/Employee/EmployeeNotifications.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:appdev2/login.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -31,6 +37,34 @@ class NotificationService {
           channelShowBadge: true,
         ),
       ],
+    );
+
+    // Set up notification action listener
+    AwesomeNotifications().setListeners(
+      onActionReceivedMethod: (ReceivedAction action) async {
+        // Get current user
+        final user = FirebaseAuth.instance.currentUser;
+        if (user == null) {
+          // Redirect to login page immediately
+          MyApp.navigatorKey.currentState?.pushReplacement(
+            MaterialPageRoute(builder: (context) => LoginScreen()),
+          );
+          return;
+        }
+        // Check if user is admin or employee
+        final email = user.email;
+        final adminSnapshot = await FirebaseFirestore.instance.collection('Admins').where('email', isEqualTo: email).get();
+        final isAdmin = adminSnapshot.docs.isNotEmpty;
+        if (isAdmin) {
+          MyApp.navigatorKey.currentState?.push(
+            MaterialPageRoute(builder: (context) => AdminNotifications()),
+          );
+        } else {
+          MyApp.navigatorKey.currentState?.push(
+            MaterialPageRoute(builder: (context) => EmployeeNotifications(userEmail: email ?? '')),
+          );
+        }
+      },
     );
   }
 

@@ -99,6 +99,7 @@ class _AdminNotificationsState extends State<AdminNotifications> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notifications', style: TextStyle(fontFamily: 'MyFont')),
+        automaticallyImplyLeading: true,
       ),
       floatingActionButton: Align(
         alignment: Alignment.bottomLeft,
