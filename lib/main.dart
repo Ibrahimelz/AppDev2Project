@@ -39,6 +39,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
      debugShowCheckedModeBanner: false,
      navigatorKey: navigatorKey,
+     theme: ThemeData(
+       appBarTheme: const AppBarTheme(
+         backgroundColor: Colors.black,
+         foregroundColor: Colors.white,
+         elevation: 0,
+       ),
+     ),
      home: splashScreen(openNotificationsPage: openNotificationsPage),
     );
   }

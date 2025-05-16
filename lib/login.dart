@@ -16,6 +16,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   bool _isEmployee = true; // true for Employee, false for Admin
   bool _isLoading = false;
 
@@ -50,6 +51,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+    
     setState(() {
       _isLoading = true;
     });
@@ -110,7 +113,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-
   @override
   void dispose() {
     _emailController.dispose();
@@ -135,198 +137,215 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 40),
-                const Text(
-                  'Log In',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 40),
+                  const Text(
+                    'Log In',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 40),
-                // Role Toggle
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => _isEmployee = true),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: _isEmployee
-                                  ? Color(0xFFB74B4B)
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Text(
-                              'Employee',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                  const SizedBox(height: 40),
+                  // Role Toggle
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setState(() => _isEmployee = true),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              decoration: BoxDecoration(
+                                color: _isEmployee
+                                    ? Color(0xFFB74B4B)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Text(
+                                'Employee',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => _isEmployee = false),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: !_isEmployee
-                                  ? Color(0xFFB74B4B)
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Text(
-                              'Admin',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setState(() => _isEmployee = false),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              decoration: BoxDecoration(
+                                color: !_isEmployee
+                                    ? Color(0xFFB74B4B)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Text(
+                                'Admin',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  // Email TextField
+                  TextFormField(
+                    controller: _emailController,
+                    style: TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'Email',
+                      hintStyle: TextStyle(color: Colors.white70),
+                      filled: true,
+                      fillColor: Colors.white.withOpacity(0.2),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide.none,
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 32),
-                // Email TextField
-                TextField(
-                  controller: _emailController,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Email',
-                    hintStyle: TextStyle(color: Colors.white70),
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.2),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
+                      prefixIcon: Icon(Icons.email, color: Colors.white70),
                     ),
-                    prefixIcon: Icon(Icons.email, color: Colors.white70),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Password TextField
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Password',
-                    hintStyle: TextStyle(color: Colors.white70),
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.2),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
-                    prefixIcon: Icon(Icons.lock, color: Colors.white70),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                // Forgot Password
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          final TextEditingController _resetEmailController = TextEditingController();
-
-                          return AlertDialog(
-                            title: Text("Reset Password"),
-                            content: TextField(
-                              controller: _resetEmailController,
-                              keyboardType: TextInputType.emailAddress,
-                              decoration: InputDecoration(
-                                labelText: "Enter your email",
-                                hintText: "example@gmail.com",
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                child: Text("Cancel"),
-                                onPressed: () => Navigator.of(context).pop(),
-                              ),
-                              ElevatedButton(
-                                child: Text("Send Reset Link"),
-                                onPressed: () async {
-                                  try {
-                                    await FirebaseAuth.instance.sendPasswordResetEmail(
-                                      email: _resetEmailController.text.trim(),
-                                    );
-                                    Navigator.of(context).pop();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text("Reset link sent to your email.")),
-                                    );
-                                  } catch (e) {
-                                    Navigator.of(context).pop();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text("Error: ${e.toString()}")),
-                                    );
-                                  }
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      return null;
                     },
-                    child: Text(
-                      'Forgot password?',
-                      style: TextStyle(
-                        color: Colors.white70,
+                  ),
+                  const SizedBox(height: 16),
+                  // Password TextField
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    style: TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'Password',
+                      hintStyle: TextStyle(color: Colors.white70),
+                      filled: true,
+                      fillColor: Colors.white.withOpacity(0.2),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide.none,
+                      ),
+                      prefixIcon: Icon(Icons.lock, color: Colors.white70),
+                    ),
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) => _handleLogin(),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  // Forgot Password
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            final TextEditingController _resetEmailController = TextEditingController();
+
+                            return AlertDialog(
+                              title: Text("Reset Password"),
+                              content: TextField(
+                                controller: _resetEmailController,
+                                keyboardType: TextInputType.emailAddress,
+                                decoration: InputDecoration(
+                                  labelText: "Enter your email",
+                                  hintText: "example@gmail.com",
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  child: Text("Cancel"),
+                                  onPressed: () => Navigator.of(context).pop(),
+                                ),
+                                ElevatedButton(
+                                  child: Text("Send Reset Link"),
+                                  onPressed: () async {
+                                    try {
+                                      await FirebaseAuth.instance.sendPasswordResetEmail(
+                                        email: _resetEmailController.text.trim(),
+                                      );
+                                      Navigator.of(context).pop();
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text("Reset link sent to your email.")),
+                                      );
+                                    } catch (e) {
+                                      Navigator.of(context).pop();
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text("Error: ${e.toString()}")),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: Text(
+                        'Forgot Password?',
+                        style: TextStyle(color: Colors.white70),
                       ),
                     ),
                   ),
-                ),
-                const Spacer(),
-                // Login Button
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _handleLogin,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                  const SizedBox(height: 24),
+                  // Login Button
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _handleLogin,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFFB74B4B),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
+                    child: _isLoading
+                        ? SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Text(
+                            'Login',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
-                  child: _isLoading
-                      ? SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Text(
-                          'Log In',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                ),
-                const SizedBox(height: 24),
-              ],
+                ],
+              ),
             ),
           ),
         ),
