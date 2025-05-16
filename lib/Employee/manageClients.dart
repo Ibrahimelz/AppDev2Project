@@ -243,6 +243,7 @@ class _ManageClientsState extends State<ManageClients> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    Text('Email: ${data['email']}'),
                                     Text('Gender: ${data['gender']}'),
                                     Text('Member: ${data['isMember'] ? 'Yes' : 'No'}'),
                                     if (data['description'] != null && data['description'].toString().isNotEmpty)

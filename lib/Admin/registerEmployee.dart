@@ -54,13 +54,31 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
     });
 
     try {
-      // Create user in Firebase Auth
+      final email = _emailController.text.trim();
+
+      // 🔍 Check for existing email in Firestore
+      final employeesRef = FirebaseFirestore.instance.collection('Employees');
+      final existing = await employeesRef
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+
+      if (existing.docs.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Email already exists. Please use a different email.')),
+        );
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      // ✅ Create user in Firebase Auth
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
+        email: email,
         password: _passwordController.text.trim(),
       );
 
-      final employeesRef = FirebaseFirestore.instance.collection('Employees');
       final querySnapshot = await employeesRef
           .orderBy('employeeID', descending: true)
           .limit(1)
@@ -75,14 +93,14 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
         'employeeID': nextEmployeeID,
         'fname': _fnameController.text.trim(),
         'lname': _lnameController.text.trim(),
-        'email': _emailController.text.trim(),
+        'email': email,
         'address': _addressController.text.trim(),
         'phoneNumber': _phoneController.text.trim(),
         'password': _passwordController.text.trim(),
         'createdAt': FieldValue.serverTimestamp(),
       };
 
-      // Upload profile picture if present (not for web)
+      // 📷 Upload profile picture if present
       if (_imageFile != null && !kIsWeb) {
         try {
           final storageRef = FirebaseStorage.instance
@@ -101,7 +119,6 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
         }
       }
 
-      // Save employee data to Firestore
       await employeesRef.add(employeeData);
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -118,6 +135,7 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
       });
     }
   }
+
 
   Widget _buildImageWidget() {
     if (_imageFile != null) {

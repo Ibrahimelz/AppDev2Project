@@ -101,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       print('Login error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed: $e')),
+        SnackBar(content: Text('Login failed: Invalid credentials')),
       );
     } finally {
       setState(() {
