@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:appdev2/Admin/registerEmployee.dart';
 import 'package:appdev2/Admin/AdminNotifications.dart';
-import 'package:appdev2/Admin/TrashNotifications.dart';
-
 import '../login.dart';
 
 class AdminHome extends StatefulWidget {
@@ -89,17 +87,6 @@ class _AdminHomeState extends State<AdminHome> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => AdminNotifications()),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.delete_outline),
-              title: Text('Trash'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => TrashNotifications()),
                 );
               },
             ),

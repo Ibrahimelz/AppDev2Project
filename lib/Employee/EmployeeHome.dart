@@ -11,7 +11,6 @@ import 'package:appdev2/Employee/groupChat.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:appdev2/Employee/TrashNotifications.dart';
 
 void main() {
   runApp(myApp());
@@ -146,17 +145,6 @@ class _employeeHomeState extends State<employeeHome> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.delete_outline),
-              title: Text('Trash'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => TrashNotifications()),
-                );
-              },
-            ),
-            ListTile(
               leading: Icon(Icons.person_2_outlined),
               title: Text('Edit Profile'),
               onTap: () {
@@ -173,18 +161,18 @@ class _employeeHomeState extends State<employeeHome> {
                 ));
               },
             ),
-            ListTile(
-              leading: Icon(Icons.message),
-              title: Text('Group chat'),
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => GroupChat(
-                    employeeID: widget.employeeID.toString(),
-                    name: '$fname $lname',
-                  ),
-                ));
-              },
-            ),
+            // ListTile(
+            //   leading: Icon(Icons.message),
+            //   title: Text('Group chat'),
+            //   onTap: () {
+            //     Navigator.of(context).push(MaterialPageRoute(
+            //       builder: (context) => GroupChat(
+            //         employeeID: widget.employeeID.toString(),
+            //         name: '$fname $lname',
+            //       ),
+            //     ));
+            //   },
+            // ),
             SizedBox(height: 50),
             ListTile(
               leading: Icon(Icons.logout),
