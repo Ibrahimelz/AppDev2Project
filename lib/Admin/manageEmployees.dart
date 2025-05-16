@@ -12,7 +12,6 @@ class _manageEmployeesState extends State<manageEmployees> {
   final CollectionReference employees =
   FirebaseFirestore.instance.collection('Employees');
 
-  // To track which card is expanded
   Set<String> expandedDocs = {};
 
   void toggleCard(String docId) {
@@ -29,7 +28,7 @@ class _manageEmployeesState extends State<manageEmployees> {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Warning', style: TextStyle(fontFamily: 'MyFont'),),
+        title: const Text('Warning', style: TextStyle(fontFamily: 'MyFont')),
         content: Text('Are you sure you want to fire $fullName?'),
         actions: [
           TextButton(
@@ -49,24 +48,23 @@ class _manageEmployeesState extends State<manageEmployees> {
 
     if (shouldDelete == true) {
       await employees.doc(docId).delete();
-      setState(() {}); // Refresh UI
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Employee deleted')),
       );
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Employees', style: TextStyle(fontFamily: 'MyFont'),),
+        title:
+        const Text('Manage Employees', style: TextStyle(fontFamily: 'MyFont')),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
       ),
-      body: FutureBuilder<QuerySnapshot>(
-        future: employees.get(),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: employees.orderBy('employeeID').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -126,9 +124,12 @@ class _manageEmployeesState extends State<manageEmployees> {
                             children: [
                               CircleAvatar(
                                 radius: 30,
-                                backgroundImage: AssetImage(
-                                  'assets/images/${data['profilePicture']}',
-                                ),
+                                backgroundImage: data['profilePicture'] != null
+                                    ? NetworkImage(data['profilePicture'])
+                                    : null,
+                                child: data['profilePicture'] == null
+                                    ? const Icon(Icons.person)
+                                    : null,
                               ),
                               const SizedBox(width: 16),
                               Expanded(
@@ -143,7 +144,8 @@ class _manageEmployeesState extends State<manageEmployees> {
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () => deleteEmployee(docId, '${data['fname']} ${data['lname']}'),
+                                onPressed: () => deleteEmployee(
+                                    docId, '${data['fname']} ${data['lname']}'),
                               ),
                             ],
                           ),

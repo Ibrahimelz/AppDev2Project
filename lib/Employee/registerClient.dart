@@ -38,12 +38,34 @@ class _RegisterClientPageState extends State<RegisterClientPage> {
   }
 
   Future<String?> _uploadProfileImage(String docId) async {
-    if (_profileImage == null) return null;
+    try {
+      if (_profileImage == null) {
+        print('No image selected.');
+        return null;
+      }
 
-    final storageRef = FirebaseStorage.instance.ref().child('client_images/$docId.jpg');
-    await storageRef.putFile(_profileImage!);
-    return await storageRef.getDownloadURL();
+      final fileExists = await _profileImage!.exists();
+      if (!fileExists) {
+        print('Image file does not exist at path: ${_profileImage!.path}');
+        return null;
+      }
+
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('client_images/$docId.jpg');
+
+      print('Uploading image to: client_images/$docId.jpg');
+      final uploadTask = await storageRef.putFile(_profileImage!);
+      final downloadUrl = await uploadTask.ref.getDownloadURL();
+
+      print('Upload successful, download URL: $downloadUrl');
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading profile image: $e');
+      return null;
+    }
   }
+
 
   void _clearForm() {
     _formKey.currentState?.reset();
