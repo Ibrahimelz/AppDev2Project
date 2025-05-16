@@ -11,6 +11,7 @@ import 'package:appdev2/Employee/groupChat.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:appdev2/Employee/TrashNotifications.dart';
 
 void main() {
   runApp(myApp());
@@ -141,6 +142,17 @@ class _employeeHomeState extends State<employeeHome> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => EmployeeNotifications(userEmail: email)),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.delete_outline),
+              title: Text('Trash'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TrashNotifications()),
                 );
               },
             ),
