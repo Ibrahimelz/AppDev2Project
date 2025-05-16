@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -17,6 +16,7 @@ class _RegisterClientPageState extends State<RegisterClientPage> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController(); // NEW
   final TextEditingController _descriptionController = TextEditingController();
   bool _isMember = true;
   String? _selectedGender;
@@ -39,26 +39,18 @@ class _RegisterClientPageState extends State<RegisterClientPage> {
 
   Future<String?> _uploadProfileImage(String docId) async {
     try {
-      if (_profileImage == null) {
-        print('No image selected.');
-        return null;
-      }
+      if (_profileImage == null) return null;
 
       final fileExists = await _profileImage!.exists();
-      if (!fileExists) {
-        print('Image file does not exist at path: ${_profileImage!.path}');
-        return null;
-      }
+      if (!fileExists) return null;
 
       final storageRef = FirebaseStorage.instance
           .ref()
           .child('client_images/$docId.jpg');
 
-      print('Uploading image to: client_images/$docId.jpg');
       final uploadTask = await storageRef.putFile(_profileImage!);
       final downloadUrl = await uploadTask.ref.getDownloadURL();
 
-      print('Upload successful, download URL: $downloadUrl');
       return downloadUrl;
     } catch (e) {
       print('Error uploading profile image: $e');
@@ -66,12 +58,12 @@ class _RegisterClientPageState extends State<RegisterClientPage> {
     }
   }
 
-
   void _clearForm() {
     _formKey.currentState?.reset();
     _firstNameController.clear();
     _lastNameController.clear();
     _ageController.clear();
+    _emailController.clear(); // CLEAR EMAIL TOO
     _descriptionController.clear();
     FocusScope.of(context).unfocus();
     setState(() {
@@ -89,6 +81,7 @@ class _RegisterClientPageState extends State<RegisterClientPage> {
         );
         return;
       }
+
       if (_selectedGender == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please select a gender')),
@@ -96,10 +89,31 @@ class _RegisterClientPageState extends State<RegisterClientPage> {
         return;
       }
 
+      final age = int.tryParse(_ageController.text.trim());
+      if (age == null || age < 18) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Client must be at least 18 years old to register')),
+        );
+        return;
+      }
+
+      final existing = await clients
+          .where('email', isEqualTo: _emailController.text.trim())
+          .limit(1)
+          .get();
+
+      if (existing.docs.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Email already exists. Please use a different email.')),
+        );
+        return;
+      }
+
       final docRef = await clients.add({
         'fname': _firstNameController.text.trim(),
         'lname': _lastNameController.text.trim(),
-        'age': int.parse(_ageController.text.trim()),
+        'age': age,
+        'email': _emailController.text.trim(),
         'gender': _selectedGender,
         'description': _descriptionController.text.trim(),
         'isMember': _isMember,
@@ -177,6 +191,19 @@ class _RegisterClientPageState extends State<RegisterClientPage> {
                 controller: _lastNameController,
                 decoration: _inputDecoration('Last Name'),
                 validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _emailController,
+                decoration: _inputDecoration('Email'),
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Required';
+                  if (!value.contains('@') || !value.contains('.')) {
+                    return 'Enter a valid email';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 12),
               TextFormField(
