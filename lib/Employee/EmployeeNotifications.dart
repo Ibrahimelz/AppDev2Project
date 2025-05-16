@@ -109,11 +109,21 @@ class _EmployeeNotificationsState extends State<EmployeeNotifications> {
                             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             child: ListTile(
                               onTap: () => _markAsRead(doc.id),
-                              title: Text(
-                                data['title'] ?? '',
-                                style: TextStyle(
-                                  fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
-                                ),
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if ((data['adminName'] ?? '').isNotEmpty)
+                                    Text(
+                                      data['adminName'] ?? '',
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.deepPurple),
+                                    ),
+                                  Text(
+                                    data['title'] ?? '',
+                                    style: TextStyle(
+                                      fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
