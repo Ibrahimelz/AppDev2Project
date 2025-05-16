@@ -56,3 +56,14 @@ macos/Flutter/Flutter-Release.xcconfig
 
 # Ignore pubspec.lock (if you want to ignore it, though usually it's tracked)
 pubspec.lock
+
+# Flutter platform-specific generated files
+windows/flutter/generated_plugin_registrant.*
+windows/flutter/generated_plugins.cmake
+
+macos/Flutter/GeneratedPluginRegistrant.swift
+
+linux/flutter/generated_plugin_registrant.*
+linux/flutter/generated_plugins.cmake
+
+android/app/.cxx/

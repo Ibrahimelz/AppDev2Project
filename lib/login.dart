@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:appdev2/Employee/EmployeeHome.dart';
 import 'package:appdev2/Admin/AdminHome.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -17,6 +18,36 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _isEmployee = true; // true for Employee, false for Admin
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
+      if (!isAllowed && mounted) {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Allow Notifications'),
+            content: Text('This app would like to send you notifications.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Don\'t Allow'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await AwesomeNotifications().requestPermissionToSendNotifications();
+                },
+                child: Text('Allow'),
+              ),
+            ],
+          ),
+        );
+      }
+    });
+  }
 
   Future<void> _handleLogin() async {
     setState(() {

@@ -54,6 +54,7 @@ class _EmployeeNotificationsState extends State<EmployeeNotifications> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notifications', style: TextStyle(fontFamily: 'MyFont')),
+        automaticallyImplyLeading: true,
       ),
       body: Column(
         children: [

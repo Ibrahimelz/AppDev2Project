@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:appdev2/services/notification_service.dart';
 
 class AdminNotifications extends StatefulWidget {
   const AdminNotifications({Key? key}) : super(key: key);
@@ -27,6 +28,11 @@ class _AdminNotificationsState extends State<AdminNotifications> {
       'date': Timestamp.now(),
       'priority': _priority,
     });
+    // Trigger local notification for admin (and for demo, on this device)
+    await NotificationService().showNotification(
+      title: _titleController.text,
+      body: _messageController.text,
+    );
     _titleController.clear();
     _messageController.clear();
     setState(() {
@@ -93,6 +99,7 @@ class _AdminNotificationsState extends State<AdminNotifications> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notifications', style: TextStyle(fontFamily: 'MyFont')),
+        automaticallyImplyLeading: true,
       ),
       floatingActionButton: Align(
         alignment: Alignment.bottomLeft,
