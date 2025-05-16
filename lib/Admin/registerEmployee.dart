@@ -220,6 +220,9 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter first name';
                     }
+                    if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                      return 'First name must contain only letters';
+                    }
                     return null;
                   },
                 ),
@@ -235,6 +238,9 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter last name';
+                    }
+                    if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                      return 'Last name must contain only letters';
                     }
                     return null;
                   },
@@ -287,6 +293,9 @@ class _RegisterEmployeeState extends State<RegisterEmployee> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter phone number';
+                    }
+                    if (!RegExp(r'^\d+$').hasMatch(value)) {
+                      return 'Phone number must contain only digits';
                     }
                     return null;
                   },
