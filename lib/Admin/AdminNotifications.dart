@@ -15,6 +15,46 @@ class _AdminNotificationsState extends State<AdminNotifications> {
   final _messageController = TextEditingController();
   String _priority = 'normal';
   String _searchQuery = '';
+  Set<String> _deletedNotificationIds = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDeletedNotifications();
+  }
+
+  Future<void> _fetchDeletedNotifications() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final deletedDocs = await FirebaseFirestore.instance
+        .collection('Admins')
+        .where('email', isEqualTo: user.email)
+        .get();
+    if (deletedDocs.docs.isEmpty) return;
+    final userDoc = deletedDocs.docs.first.reference;
+    final deletedNotifs = await userDoc.collection('deletedNotifications').get();
+    setState(() {
+      _deletedNotificationIds = deletedNotifs.docs.map((d) => d.id).toSet();
+    });
+  }
+
+  Future<void> _deleteNotificationForAdmin(String notifId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final deletedDocs = await FirebaseFirestore.instance
+        .collection('Admins')
+        .where('email', isEqualTo: user.email)
+        .get();
+    if (deletedDocs.docs.isEmpty) return;
+    final userDoc = deletedDocs.docs.first.reference;
+    await userDoc.collection('deletedNotifications').doc(notifId).set({
+      'deleted': true,
+      'deletedAt': FieldValue.serverTimestamp(),
+    });
+    setState(() {
+      _deletedNotificationIds.add(notifId);
+    });
+  }
 
   Future<void> _createNotification() async {
     if (_titleController.text.isEmpty || _messageController.text.isEmpty) {
@@ -168,7 +208,9 @@ class _AdminNotificationsState extends State<AdminNotifications> {
                 return ListView.builder(
                   itemCount: docs.length,
                   itemBuilder: (context, index) {
-                    final data = docs[index].data() as Map<String, dynamic>;
+                    final doc = docs[index];
+                    final data = doc.data() as Map<String, dynamic>;
+                    if (_deletedNotificationIds.contains(doc.id)) return SizedBox.shrink();
                     return Card(
                       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       child: ListTile(
@@ -199,9 +241,42 @@ class _AdminNotificationsState extends State<AdminNotifications> {
                             ),
                           ],
                         ),
-                        trailing: data['priority'] == 'high'
-                            ? const Icon(Icons.priority_high, color: Colors.red)
-                            : null,
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (data['priority'] == 'high')
+                              const Icon(Icons.priority_high, color: Colors.red),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Delete Notification'),
+                                    content: const Text('Are you sure you want to delete this notification?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop(false),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                        onPressed: () => Navigator.of(context).pop(true),
+                                        child: const Text('Delete'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (confirm == true) {
+                                  await _deleteNotificationForAdmin(doc.id);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Notification deleted for you.')),
+                                  );
+                                }
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },
