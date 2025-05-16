@@ -2,6 +2,7 @@ import 'package:appdev2/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:appdev2/services/notification_service.dart';
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,6 +14,10 @@ Future<void> main() async{
        projectId: "titanfitness-a55fd"
    )
   );
+  
+  // Initialize notification service
+  await NotificationService().initialize();
+  
   WidgetsFlutterBinding.ensureInitialized();
 
   runApp(const MyApp());

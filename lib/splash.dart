@@ -2,6 +2,7 @@ import 'package:appdev2/Employee/EmployeeHome.dart';
 import 'package:appdev2/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 class splashScreen extends StatefulWidget {
   const splashScreen({super.key});
@@ -14,15 +15,13 @@ class _splashScreenState extends State<splashScreen>  with SingleTickerProviderS
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-    
-    Future.delayed(Duration( seconds: 5), () {
+    Future.delayed(Duration(seconds: 5), () {
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen()));
     });
   }
-  
+
   @override
   void dispose() {
     // TODO: implement dispose
