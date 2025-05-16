@@ -1,13 +1,5 @@
-import 'dart:ui';
-
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
-import 'package:appdev2/main.dart';
-import 'package:appdev2/Admin/AdminNotifications.dart';
-import 'package:appdev2/Employee/EmployeeNotifications.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:appdev2/login.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -22,49 +14,20 @@ class NotificationService {
           channelKey: 'basic_channel',
           channelName: 'Basic Notifications',
           channelDescription: 'Basic notification channel',
-          defaultColor: const Color(0xFF9D50DD),
-          ledColor: Colors.white,
-          importance: NotificationImportance.High,
-          channelShowBadge: true,
-        ),
-        NotificationChannel(
-          channelKey: 'scheduled_channel',
-          channelName: 'Scheduled Notifications',
-          channelDescription: 'Scheduled notification channel',
-          defaultColor: const Color(0xFF9D50DD),
-          ledColor: Colors.white,
+          defaultColor: Colors.orangeAccent,
+          ledColor: Colors.orangeAccent,
           importance: NotificationImportance.High,
           channelShowBadge: true,
         ),
       ],
     );
 
-    // Set up notification action listener
+    // Set up notification action listeners
     AwesomeNotifications().setListeners(
-      onActionReceivedMethod: (ReceivedAction action) async {
-        // Get current user
-        final user = FirebaseAuth.instance.currentUser;
-        if (user == null) {
-          // Redirect to login page immediately
-          MyApp.navigatorKey.currentState?.pushReplacement(
-            MaterialPageRoute(builder: (context) => LoginScreen()),
-          );
-          return;
-        }
-        // Check if user is admin or employee
-        final email = user.email;
-        final adminSnapshot = await FirebaseFirestore.instance.collection('Admins').where('email', isEqualTo: email).get();
-        final isAdmin = adminSnapshot.docs.isNotEmpty;
-        if (isAdmin) {
-          MyApp.navigatorKey.currentState?.push(
-            MaterialPageRoute(builder: (context) => AdminNotifications()),
-          );
-        } else {
-          MyApp.navigatorKey.currentState?.push(
-            MaterialPageRoute(builder: (context) => EmployeeNotifications(userEmail: email ?? '')),
-          );
-        }
-      },
+      onActionReceivedMethod: _onActionReceivedMethod,
+      onNotificationCreatedMethod: _onNotificationCreatedMethod,
+      onNotificationDisplayedMethod: _onNotificationDisplayedMethod,
+      onDismissActionReceivedMethod: _onDismissActionReceivedMethod,
     );
   }
 
@@ -72,7 +35,6 @@ class NotificationService {
     required String title,
     required String body,
     String? payload,
-    NotificationLayout layout = NotificationLayout.Default,
   }) async {
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
@@ -81,34 +43,35 @@ class NotificationService {
         title: title,
         body: body,
         payload: {'data': payload ?? ''},
-        notificationLayout: layout,
+        notificationLayout: NotificationLayout.Default,
       ),
     );
   }
 
-  Future<void> showScheduledNotification({
-    required String title,
-    required String body,
-    required DateTime scheduledDate,
-    String? payload,
-  }) async {
-    await AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
-        channelKey: 'scheduled_channel',
-        title: title,
-        body: body,
-        payload: {'data': payload ?? ''},
-      ),
-      schedule: NotificationCalendar.fromDate(date: scheduledDate),
-    );
+  @pragma('vm:entry-point')
+  static Future<void> _onActionReceivedMethod(ReceivedAction receivedAction) async {
+    // Handle notification action
+    if (receivedAction.payload != null) {
+      // You can add custom logic here to handle the notification action
+      debugPrint('Notification action received: ${receivedAction.payload}');
+    }
   }
 
-  Future<void> cancelAllNotifications() async {
-    await AwesomeNotifications().cancelAll();
+  @pragma('vm:entry-point')
+  static Future<void> _onNotificationCreatedMethod(ReceivedNotification receivedNotification) async {
+    // Handle notification creation
+    debugPrint('Notification created: ${receivedNotification.title}');
   }
 
-  Future<void> cancelNotification(int id) async {
-    await AwesomeNotifications().cancel(id);
+  @pragma('vm:entry-point')
+  static Future<void> _onNotificationDisplayedMethod(ReceivedNotification receivedNotification) async {
+    // Handle notification display
+    debugPrint('Notification displayed: ${receivedNotification.title}');
+  }
+
+  @pragma('vm:entry-point')
+  static Future<void> _onDismissActionReceivedMethod(ReceivedAction receivedAction) async {
+    // Handle notification dismissal
+    debugPrint('Notification dismissed: ${receivedAction.title}');
   }
 } 
