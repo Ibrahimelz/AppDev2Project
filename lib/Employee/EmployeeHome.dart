@@ -161,18 +161,18 @@ class _employeeHomeState extends State<employeeHome> {
                 ));
               },
             ),
-            // ListTile(
-            //   leading: Icon(Icons.message),
-            //   title: Text('Group chat'),
-            //   onTap: () {
-            //     Navigator.of(context).push(MaterialPageRoute(
-            //       builder: (context) => GroupChat(
-            //         employeeID: widget.employeeID.toString(),
-            //         name: '$fname $lname',
-            //       ),
-            //     ));
-            //   },
-            // ),
+            ListTile(
+              leading: Icon(Icons.message),
+              title: Text('Group chat'),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => GroupChat(
+                    employeeID: widget.employeeID.toString(),
+                    name: '$fname $lname',
+                  ),
+                ));
+              },
+            ),
             SizedBox(height: 50),
             ListTile(
               leading: Icon(Icons.logout),
