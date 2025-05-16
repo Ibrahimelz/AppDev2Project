@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class EmployeeNotifications extends StatefulWidget {
   final String userEmail;
@@ -11,41 +12,44 @@ class EmployeeNotifications extends StatefulWidget {
 
 class _EmployeeNotificationsState extends State<EmployeeNotifications> {
   String _searchQuery = '';
-  Set<String> _readNotificationIds = {};
-  bool _loadingRead = true;
+  Set<String> _deletedNotificationIds = {};
 
   @override
   void initState() {
     super.initState();
-    _fetchReadNotifications();
+    _fetchDeletedNotifications();
   }
 
-  Future<void> _fetchReadNotifications() async {
-    final readDocs = await FirebaseFirestore.instance
-        .collection('Notifications')
+  Future<void> _fetchDeletedNotifications() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final deletedDocs = await FirebaseFirestore.instance
+        .collection('Employees')
+        .where('email', isEqualTo: user.email)
         .get();
-    Set<String> readIds = {};
-    for (var doc in readDocs.docs) {
-      final readBy = await doc.reference.collection('readBy').doc(widget.userEmail).get();
-      if (readBy.exists) {
-        readIds.add(doc.id);
-      }
-    }
+    if (deletedDocs.docs.isEmpty) return;
+    final userDoc = deletedDocs.docs.first.reference;
+    final deletedNotifs = await userDoc.collection('deletedNotifications').get();
     setState(() {
-      _readNotificationIds = readIds;
-      _loadingRead = false;
+      _deletedNotificationIds = deletedNotifs.docs.map((d) => d.id).toSet();
     });
   }
 
-  Future<void> _markAsRead(String notificationId) async {
-    final readRef = FirebaseFirestore.instance
-        .collection('Notifications')
-        .doc(notificationId)
-        .collection('readBy')
-        .doc(widget.userEmail);
-    await readRef.set({'read': true});
+  Future<void> _deleteNotificationForUser(String notifId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final deletedDocs = await FirebaseFirestore.instance
+        .collection('Employees')
+        .where('email', isEqualTo: user.email)
+        .get();
+    if (deletedDocs.docs.isEmpty) return;
+    final userDoc = deletedDocs.docs.first.reference;
+    await userDoc.collection('deletedNotifications').doc(notifId).set({
+      'deleted': true,
+      'deletedAt': FieldValue.serverTimestamp(),
+    });
     setState(() {
-      _readNotificationIds.add(notificationId);
+      _deletedNotificationIds.add(notifId);
     });
   }
 
@@ -74,9 +78,7 @@ class _EmployeeNotificationsState extends State<EmployeeNotifications> {
             ),
           ),
           Expanded(
-            child: _loadingRead
-                ? const Center(child: CircularProgressIndicator())
-                : StreamBuilder<QuerySnapshot>(
+            child: StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
                         .collection('Notifications')
                         .orderBy('date', descending: true)
@@ -89,6 +91,7 @@ class _EmployeeNotificationsState extends State<EmployeeNotifications> {
                         return const Center(child: Text('No notifications.'));
                       }
                       final docs = snapshot.data!.docs.where((doc) {
+                        if (_deletedNotificationIds.contains(doc.id)) return false;
                         final data = doc.data() as Map<String, dynamic>;
                         final title = (data['title'] ?? '').toString().toLowerCase();
                         final message = (data['message'] ?? '').toString().toLowerCase();
@@ -104,16 +107,22 @@ class _EmployeeNotificationsState extends State<EmployeeNotifications> {
                         itemBuilder: (context, index) {
                           final doc = docs[index];
                           final data = doc.data() as Map<String, dynamic>;
-                          final isRead = _readNotificationIds.contains(doc.id);
                           return Card(
                             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             child: ListTile(
-                              onTap: () => _markAsRead(doc.id),
-                              title: Text(
-                                data['title'] ?? '',
-                                style: TextStyle(
-                                  fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
-                                ),
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if ((data['adminName'] ?? '').isNotEmpty)
+                                    Text(
+                                      data['adminName'] ?? '',
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.deepPurple),
+                                    ),
+                                  Text(
+                                    data['title'] ?? '',
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ],
                               ),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,9 +137,42 @@ class _EmployeeNotificationsState extends State<EmployeeNotifications> {
                                   ),
                                 ],
                               ),
-                              trailing: data['priority'] == 'high'
-                                  ? const Icon(Icons.priority_high, color: Colors.red)
-                                  : null,
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (data['priority'] == 'high')
+                                    const Icon(Icons.priority_high, color: Colors.red),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () async {
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: const Text('Delete Notification'),
+                                          content: const Text('Are you sure you want to delete this notification?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.of(context).pop(false),
+                                              child: const Text('Cancel'),
+                                            ),
+                                            ElevatedButton(
+                                              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                              onPressed: () => Navigator.of(context).pop(true),
+                                              child: const Text('Delete'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                      if (confirm == true) {
+                                        await _deleteNotificationForUser(doc.id);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Notification deleted for you.')),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },
